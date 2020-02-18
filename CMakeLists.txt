@@ -46,7 +46,10 @@ include(config-ix)
 include(HandleOpenMPOptions)
 
 # Set up testing infrastructure.
-include(OpenMPTesting)
+option(OPENMP_ENABLE_TESTING "Enable testing" OFF)
+if(OPENMP_ENABLE_TESTING)
+    include(OpenMPTesting)
+endif()
 
 set(OPENMP_TEST_FLAGS "" CACHE STRING
   "Extra compiler flags to send to the test compiler.")
@@ -57,8 +60,12 @@ set(OPENMP_TEST_OPENMP_FLAGS ${OPENMP_TEST_COMPILER_OPENMP_FLAGS} CACHE STRING
 # Build host runtime library.
 add_subdirectory(runtime)
 
+set(_CUDA_AVAIL OFF)
+if(CMAKE_CUDA_COMPILER)
+    set(_CUDA_AVAIL ON)
+endif()
 
-set(ENABLE_LIBOMPTARGET ON)
+set(ENABLE_LIBOMPTARGET ${_CUDA_AVAIL})
 # Currently libomptarget cannot be compiled on Windows or MacOS X.
 # Since the device plugins are only supported on Linux anyway,
 # there is no point in trying to compile libomptarget on other OSes.
@@ -80,4 +87,6 @@ if (OPENMP_ENABLE_LIBOMPTARGET)
 endif()
 
 # Now that we have seen all testuites, create the check-openmp target.
-construct_check_openmp_target()
+if(OPENMP_ENABLE_TESTING)
+    construct_check_openmp_target()
+endif()
