@@ -165,9 +165,11 @@ endif()
 if(NOT WIN32)
   add_custom_command(TARGET omp POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIBOMP_LIB_FILE}
-      libgomp${LIBOMP_LIBRARY_SUFFIX}
+      ${CMAKE_CURRENT_BINARY_DIR}/libgomp${LIBOMP_LIBRARY_SUFFIX}
     COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIBOMP_LIB_FILE}
-      libiomp5${LIBOMP_LIBRARY_SUFFIX}
+      ${CMAKE_CURRENT_BINARY_DIR}/libgomp${LIBOMP_LIBRARY_SUFFIX}.1
+    COMMAND ${CMAKE_COMMAND} -E create_symlink ${LIBOMP_LIB_FILE}
+      ${CMAKE_CURRENT_BINARY_DIR}/libiomp5${LIBOMP_LIBRARY_SUFFIX}
     WORKING_DIRECTORY ${LIBOMP_LIBRARY_DIR}
   )
 endif()
@@ -305,10 +307,10 @@ else()
 
   if(${LIBOMP_INSTALL_ALIASES})
     # Create aliases (symlinks) of the library for backwards compatibility
-    set(LIBOMP_ALIASES "libgomp;libiomp5")
+    set(LIBOMP_ALIASES "libgomp${LIBOMP_LIBRARY_SUFFIX};libgomp${LIBOMP_LIBRARY_SUFFIX}.1;libiomp5${LIBOMP_LIBRARY_SUFFIX}")
     foreach(alias IN LISTS LIBOMP_ALIASES)
       install(CODE "execute_process(COMMAND \"\${CMAKE_COMMAND}\" -E create_symlink \"${LIBOMP_LIB_FILE}\"
-        \"${alias}${LIBOMP_LIBRARY_SUFFIX}\" WORKING_DIRECTORY
+        \"${alias}\" WORKING_DIRECTORY
         \$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${OPENMP_INSTALL_LIBDIR})")
     endforeach()
   endif()
